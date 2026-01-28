@@ -1,6 +1,6 @@
 "use server";
 
-
+import { unstable_cache } from "next/cache";
 
 const username = "AshrafElshaer";
 
@@ -10,7 +10,7 @@ export type Contribution = {
   level: number;
 };
 
-export const getContributions = async (): Promise<Contribution[]> => {
+const fetchContributions = async (): Promise<Contribution[]> => {
   const url = new URL(
     `/v4/${username}`,
     "https://github-contributions-api.jogruber.de",
@@ -25,4 +25,10 @@ export const getContributions = async (): Promise<Contribution[]> => {
   return data.contributions;
 };
 
-
+export const getContributions = unstable_cache(
+  fetchContributions,
+  ["github-contributions"],
+  {
+    revalidate: 3600, // Cache for 1 hour
+  },
+);
